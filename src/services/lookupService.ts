@@ -1,4 +1,4 @@
-import { apiService, getThisMonthDateRange, getDateRange, getTodayDateRange } from './api';
+import { apiService, getThisMonthDateRange, getTodayDateRange } from './api';
 import { AgentCallActivity, AgentSummary } from '../types/api';
 
 interface AgentInfo {

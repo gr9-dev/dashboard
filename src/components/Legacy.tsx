@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { apiService, formatDuration, getTodayDateRange, getThisWeekDateRange, filterActivitiesByDateRange } from '../services/api';
 import { lookupService } from '../services/lookupService';
-import { AgentCallActivity, AgentSummary } from '../types/api';
+import { AgentSummary } from '../types/api';
 
 interface LegacyProps {
   onLogout: () => void;
@@ -197,7 +197,7 @@ export const Legacy: React.FC<LegacyProps> = ({ onLogout }) => {
     
     // Find groups with multiple agents (potential duplicates)
     const potentialDuplicates = Array.from(duplicateGroups.entries())
-      .filter(([key, agents]) => agents.length > 1 && agents[0].talkTime > 0);
+      .filter(([_, agents]) => agents.length > 1 && agents[0].talkTime > 0);
     
     // Log potential duplicates for debugging
     console.log('Potential duplicates found:', potentialDuplicates.map(([key, agents]) => ({
@@ -206,7 +206,7 @@ export const Legacy: React.FC<LegacyProps> = ({ onLogout }) => {
     })));
     
     // Merge duplicates: Keep the one with the real name, remove the fallback
-    potentialDuplicates.forEach(([key, agents]) => {
+    potentialDuplicates.forEach(([_, agents]) => {
       if (agents.length === 2) {
         const [agent1, agent2] = agents;
         
@@ -409,10 +409,10 @@ export const Legacy: React.FC<LegacyProps> = ({ onLogout }) => {
     
     // Find groups with multiple agents (potential duplicates)
     const potentialDuplicates = Array.from(duplicateGroups.entries())
-      .filter(([key, agents]) => agents.length > 1 && agents[0].talkTime > 0);
+      .filter(([_, agents]) => agents.length > 1 && agents[0].talkTime > 0);
     
     // Merge duplicates for weekly stats too
-    potentialDuplicates.forEach(([key, agents]) => {
+    potentialDuplicates.forEach(([_, agents]) => {
       if (agents.length === 2) {
         const [agent1, agent2] = agents;
         
@@ -587,10 +587,10 @@ export const Legacy: React.FC<LegacyProps> = ({ onLogout }) => {
     
     // Find groups with multiple agents (potential duplicates)
     const potentialDuplicates = Array.from(duplicateGroups.entries())
-      .filter(([key, agents]) => agents.length > 1 && agents[0].talkTime > 0);
+      .filter(([_, agents]) => agents.length > 1 && agents[0].talkTime > 0);
     
     // Merge duplicates for monthly stats too
-    potentialDuplicates.forEach(([key, agents]) => {
+    potentialDuplicates.forEach(([_, agents]) => {
       if (agents.length === 2) {
         const [agent1, agent2] = agents;
         

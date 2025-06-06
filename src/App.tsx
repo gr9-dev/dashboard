@@ -1,15 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Login } from './components/Login';
 import { MainDashboard } from './components/MainDashboard';
-import { DebugAuth } from './components/DebugAuth';
 import { apiService } from './services/api';
-import config, { isDevelopment } from './config';
-import { v4 as uuidv4 } from 'uuid';
 
 export const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [obfuscatedUrl] = useState(() => uuidv4());
 
   useEffect(() => {
     // Check if user is already authenticated
@@ -30,13 +26,6 @@ export const App: React.FC = () => {
   const handleLogout = () => {
     apiService.logout();
     setIsAuthenticated(false);
-  };
-
-  const forceLogout = () => {
-    console.log('Force logout triggered (manual reset)');
-    apiService.logout();
-    setIsAuthenticated(false);
-    console.log('Force logout complete');
   };
 
   // Add debugging for state changes

@@ -1,8 +1,6 @@
 import axios, { AxiosInstance, AxiosError } from 'axios';
 import config, { getApiUrl } from '../config';
 import {
-  AuthRequest,
-  AuthResponse,
   AgentCallActivityResponse,
   AgentSummaryListResponse,
   ActivityQueryParams,
@@ -14,6 +12,8 @@ class ApiService {
   private token: string | null = null;
 
   constructor() {
+    // Try to load token from localStorage on initialization
+    this.token = localStorage.getItem('cloudcall_token');
     this.api = axios.create({
       baseURL: config.api.baseUrl,
       headers: {
@@ -113,6 +113,10 @@ class ApiService {
       }
 
       console.log('Final token stored (first 20 chars):', this.token.substring(0, 20));
+      
+      // Persist token to localStorage
+      localStorage.setItem('cloudcall_token', this.token);
+      
       return this.token;
     } catch (error) {
       console.error('Authentication error details:', error);
@@ -226,8 +230,13 @@ class ApiService {
   }
 
   hasValidToken(): boolean {
+    // If we don't have a token in memory, try to load from localStorage
+    if (!this.token) {
+      this.token = localStorage.getItem('cloudcall_token');
+    }
+    
     const hasToken = !!this.token;
-    console.log('hasValidToken check:', hasToken);
+    console.log('hasValidToken check:', hasToken, this.token ? `(token: ${this.token.substring(0, 20)}...)` : '(no token)');
     return hasToken;
   }
 

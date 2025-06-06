@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
 import { formatDuration } from '../services/api';
 import { lookupService } from '../services/lookupService';
-import { AgentCallActivity, AgentSummary } from '../types/api';
 
 interface ChartsProps {
   onLogout: () => void;
@@ -235,12 +234,12 @@ export const Charts: React.FC<ChartsProps> = ({ onLogout }) => {
                     fill="#8884d8"
                     dataKey="value"
                   >
-                    {pieChartData.map((entry, index) => (
+                    {pieChartData.map((_, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
                   <Tooltip 
-                    formatter={(value, name) => [
+                    formatter={(value) => [
                       `${Math.floor(Number(value) / 60)}m ${Number(value) % 60}s`, 
                       'Talk Time'
                     ]}
