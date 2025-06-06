@@ -1,0 +1,1049 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "CloudCall Reporting API",
+    "description": "Reporting suite allows you to get information about the calls that have been sent and received using CloudCall. \\\n  It contains activities, which are lists / raw data, and summaries which are aggregations of data. \\\n\\\n Please find details about how to generate a authentication token here \\\n https://cloudcall.readme.io/docs/api-authentication. \\\n Please also find details about the different regions/platforms we have here \\\n https://cloudcall.readme.io/docs/cloudcall-credentials \\\n in order to authenticate for the right platform.  \\\n\\\nUrls for different platforms are different: \\\nUK platform for UK, Australia and Pacific: select the UK server \\\nUS platform for the Americas: select the US server",
+    "termsOfService": "https://terms.cloudcall.com",
+    "contact": {
+      "name": "Integrations",
+      "email": "integrations@cloudcall.com"
+    },
+    "license": {
+      "name": "License",
+      "url": "https://license.cloudcall.com"
+    },
+    "version": "v1.1.0"
+  },
+  "servers": [
+    {
+      "url": "https://ng-api.uk.cloudcall.com/v3/reporting"
+    },
+    {
+      "url": "https://ng-api.us.cloudcall.com/v3/reporting"
+    },
+    {
+      "url": "https://ng-api.staging.cloudcall.com/v3/reporting"
+    }
+  ],
+  "paths": {
+    "/activity/agents": {
+      "get": {
+        "tags": ["Agents Call Activity"],
+        "summary": "Agents activities. Allows you to view the entire history of calls made using CloudCall over a time period.\r\nYou can use it to generate reports or to search for a particular call",
+        "description": "<br>Return payload with data</br>\r\n<br>\r\n  <b>PI usage for polling / syncing the call data to your database:</b>\r\n</br>\r\n<br>You need to use the active cursor, a ‘from’ value which is always the same and a ‘to’ value set to the very a distant future to ensure you don’t miss out on any calls. </br>\r\n<br>Initial request:</br>\r\n<br>Get /activsity/agents (from = timeYouWantToSyncFrom, to= 2100-01-01T00:00:00.000Z, take=500)</br>\r\n<br>Save the returned SearchAfterId (which is the Id of the last entry in the page)</br>\r\n<br>Subsequent requests:</br>\r\n<br> Get /activity/agents (from = timeYouWantToSyncFrom, to= 2100-01-01T00:00:00.000Z,  take=500, take=500, SearchAfterId  = searchAfterId)</br>\r\n<br> Save the returned SearchAfterId (which is the Id of the last entry in the page)</br>\r\n<br>Notes:</br>\r\n<ul>\r\n  <li>\r\n                    Using this method, one can pull calls as they are added to the system. Which means that the calls received are not in a strict chronological order.\r\n                </li>\r\n  <li>\r\n                    We cannot guarantee real time data, as calls can take time to ingest. Calls will be present within 5 mins AFTER they are terminated (and/or any transfer is terminated)\r\n                </li>\r\n</ul>",
+        "parameters": [
+          {
+            "name": "OrderBy",
+            "in": "query",
+            "description": "You can order by:\r\n<br />\r\n* CallStartEpochTime (in UI Occurred At)\r\n* CallDirectionId (in UI Direction)\r\n* CallAgentOutcomeId (in UI Outcome)\r\n* TotalDuration (in UI Duration)\r\n\r\nDefault OrderBy = CallStartEpochTime;",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "OrderByDirection",
+            "in": "query",
+            "description": "* 0 - Ascending\r\n* 1 - Descending\r\n\r\nDefault OrderByDirection =  Descending (1);",
+            "schema": {
+              "$ref": "#/components/schemas/ListSortDirection"
+            }
+          },
+          {
+            "name": "AccountName",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "AccountId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "CustomerId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "DepartmentId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "DepartmentName",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ContactId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "CallDirectionId",
+            "in": "query",
+            "description": "* 0 - Outbound\r\n* 1 - Inbound\r\n* 2 - Forwarded",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "CallAgentOutcomeId",
+            "in": "query",
+            "description": "* 0 - Connected\r\n* 1 - Unconnected",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "TotalDuration",
+            "in": "query",
+            "description": "Duration of call in milliseconds.\r\n<br />\r\nReturns results that are equal to or greater than the specified value",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "CallAgentOutcomeDetailId",
+            "in": "query",
+            "description": "* Busy = 1\r\n* Fax = 2\r\n* AnswerMachineDetection = 3\r\n* NoAnswer = 4\r\n* NumberInvalid = 5\r\n* CampaignPaused = 6\r\n* Free = 7\r\n* Postponed = 8\r\n* Connected = 9\r\n* QueueFull = 10\r\n* CampaignClosed = 11\r\n* CampaignHoliday = 12\r\n* QueueTimeExceeded = 13\r\n* CallerTerminatedWelcomeMessage = 14\r\n* CallerTerminatedQueueMessage = 15\r\n* CallerTerminatedUnansweredCampaign = 16\r\n* CallerTerminatedDialingAgent = 17\r\n* AgentTerminated = 18\r\n* ReachedVoicemail = 19\r\n* NoAgentsLoggedIn = 20\r\n* VoicemailLeft = 21\r\n* CallBackRequested = 22\r\n* NoAgentsAvailable = 23\r\n* UnConnected = 24\r\n* NumberInvalidForbidden = 403",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "SearchAfter",
+            "in": "query",
+            "description": "Default = false\r\n<br />\r\nThis is whether you want to page using the page number (Page) which is limited to 10000 entries total (Page*Take) or use the live cursor(searchAfterId).\r\nWith live cursor you have no total limitation, however Take for single batch <=500\r\nUsing this parameter automatically disables any custom sorting.",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "SearchAfterId",
+            "in": "query",
+            "description": "This is a live cursor reference so searches with more than 10000 results are possible.\r\nUsing this parameter automatically disables any custom sorting (and turn on sorting by Id).\r\n<br />\r\nIf not set then searching will start from the beginning.\r\n<br />\r\nIf set then searching will start from AgentCallActivity.Id = SearchAfterId.\r\n<br />\r\nIn returned model you will find last found Id which could be used as input parameter for next search.",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "Take",
+            "in": "query",
+            "description": "Default = Max = 500\r\n<br />\r\nThis sets the number of results to be returned in the page\r\n<br />\r\nIf SearchAfter = false, then Take*Page should be <= 10000\r\n<br />\r\nIf SearchAfter = true, then Take should be <=500",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "example": 500
+            },
+            "example": 500
+          },
+          {
+            "name": "Page",
+            "in": "query",
+            "description": "Default = 1\r\n<br />\r\nIf SearchAfter = false, then Take*Page should be <= 10000\r\n<br />\r\nIf SearchAfter = true, then Page will be ignored",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "example": 1
+            },
+            "example": 1
+          },
+          {
+            "name": "ContactName",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "CompanyName",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "IsInternalCall",
+            "in": "query",
+            "description": "* 0 - External\r\n* 1 - Internal",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ContactNumber",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "AccountNumber",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ExcludeUnconnectedCampaignCalls",
+            "in": "query",
+            "description": "Do not include Campaign calls which are not answered by an agent (unconnected Campaign calls could create a lot of noise)\r\n<br />\r\n* True - will be excluded\r\n* False - will not be excluded",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "TimeZone",
+            "in": "query",
+            "description": "Should be set if DayPeriod filter is in use",
+            "schema": {
+              "type": "string",
+              "example": "Europe/London"
+            },
+            "example": "Europe/London"
+          },
+          {
+            "name": "DayPeriod",
+            "in": "query",
+            "description": "* AM - before noon\r\n* PM - after noon\r\n            \r\nIf set then TimeZone should be also set",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "CallRecordingAvailable",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "From",
+            "in": "query",
+            "description": "Localization-dependent string. E.g:\r\n<br />\r\n* 2021-03-15T23:00:00.000Z\r\n* 2021/03/15T23:00:00.000Z\r\n* 2021/15/03T23:00:00.000Z\r\n            \r\nAlso could be in Unix TimeStamp format\r\n* 1605441192\r\n            \r\nIf empty it will be setup to UTC time: Now minus 1 day.\r\nIf set \"FromEpochTime\" should be unset",
+            "schema": {
+              "type": "string",
+              "example": "2021/03/04T23:00:00.000Z"
+            },
+            "example": "2021/03/04T23:00:00.000Z"
+          },
+          {
+            "name": "To",
+            "in": "query",
+            "description": "Localization-dependent string. E.g:\r\n<br />\r\n* 2021-03-15T23:00:00.000Z\r\n* 2021/03/15T23:00:00.000Z\r\n* 2021/15/03T23:00:00.000Z\r\n\r\nAlso could be in Unix TimeStamp format\r\n* 1610711592\r\n            \r\nIf empty it will be setup to UTC time: Now\r\nIf set \"ToEpochTime\" should be unset",
+            "schema": {
+              "type": "string",
+              "example": "2021/03/05T23:00:00.000Z"
+            },
+            "example": "2021/03/05T23:00:00.000Z"
+          },
+          {
+            "name": "FromEpochTime",
+            "in": "query",
+            "description": "Time in Unix TimeStamp format. E.g:\r\n*1605441192\r\n            \r\nIf set \"From\" should be unset",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "ToEpochTime",
+            "in": "query",
+            "description": " Time in Unix TimeStamp format. E.g:\r\n *1610711592\r\n\r\nIf set \"To\" should be unset",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentCallActivityResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentCallActivityResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentCallActivityResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "429": {
+            "description": "Client Error"
+          },
+          "500": {
+            "description": "Server Error"
+          }
+        }
+      }
+    },
+    "/summary/agents?api-version=1.0": {
+      "get": {
+        "tags": ["Agents Call Summary"],
+        "summary": "Agents summary. Overview of each agent's activity on a simple interface that details the total number of calls made and received, as well as the duration of the calls.",
+        "description": "Return payload with data",
+        "parameters": [
+          {
+            "name": "From",
+            "in": "query",
+            "description": "Localization-dependent string. E.g.:\r\n<br />\r\n* 2021-03-15T23:00:00.000Z\r\n* 2021/03/15T23:00:00.000Z\r\n* 2021/15/03T23:00:00.000Z\r\n\r\nAlso could be in Unix TimeStamp format\r\n* 1605441192\r\n            \r\nIf empty it will be setup to UTC time: Now minus 1 day.",
+            "schema": {
+              "type": "string",
+              "example": "2021/03/04T23:00:00.000Z"
+            },
+            "example": "2021/03/04T23:00:00.000Z"
+          },
+          {
+            "name": "To",
+            "in": "query",
+            "description": "Localization-dependent string. E.g.:\r\n<br />\r\n* 2021-03-15T23:00:00.000Z\r\n* 2021/03/15T23:00:00.000Z\r\n* 2021/15/03T23:00:00.000Z\r\n            \r\nAlso could be in Unix TimeStamp format\r\n* 1610711592\r\n            \r\nIf empty it will be setup to UTC time: Now",
+            "schema": {
+              "type": "string",
+              "example": "2021/03/05T23:00:00.000Z"
+            },
+            "example": "2021/03/05T23:00:00.000Z"
+          },
+          {
+            "name": "DepartmentId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "AccountId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "Reach",
+            "in": "query",
+            "description": "Call type\r\n<br />\r\n* 0 - External\r\n* 1 - Internal\r\n* 2 - All",
+            "schema": {
+              "$ref": "#/components/schemas/Reach"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentStatisticsListResponseModel"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentStatisticsListResponseModel"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentStatisticsListResponseModel"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Client Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error"
+          }
+        }
+      }
+    },
+    "/summary/agents?api-version=1.1": {
+      "get": {
+        "tags": ["Agents Call Summary"],
+        "summary": "Agents summary. Overview of each agent's activity on a simple interface that details the total number of calls made and received, as well as the duration of the calls.",
+        "description": "Return payload with data. Inbound Unconnected Campaign calls are excluded.",
+        "parameters": [
+          {
+            "name": "From",
+            "in": "query",
+            "description": "Localization-dependent string. E.g.:\r\n<br />\r\n* 2021-03-15T23:00:00.000Z\r\n* 2021/03/15T23:00:00.000Z\r\n* 2021/15/03T23:00:00.000Z\r\n\r\nAlso could be in Unix TimeStamp format\r\n* 1605441192\r\n            \r\nIf empty it will be setup to UTC time: Now minus 1 day.",
+            "schema": {
+              "type": "string",
+              "example": "2021/03/04T23:00:00.000Z"
+            },
+            "example": "2021/03/04T23:00:00.000Z"
+          },
+          {
+            "name": "To",
+            "in": "query",
+            "description": "Localization-dependent string. E.g.:\r\n<br />\r\n* 2021-03-15T23:00:00.000Z\r\n* 2021/03/15T23:00:00.000Z\r\n* 2021/15/03T23:00:00.000Z\r\n            \r\nAlso could be in Unix TimeStamp format\r\n* 1610711592\r\n            \r\nIf empty it will be setup to UTC time: Now",
+            "schema": {
+              "type": "string",
+              "example": "2021/03/05T23:00:00.000Z"
+            },
+            "example": "2021/03/05T23:00:00.000Z"
+          },
+          {
+            "name": "DepartmentId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "AccountId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "Reach",
+            "in": "query",
+            "description": "Call type\r\n<br />\r\n* 0 - External\r\n* 1 - Internal\r\n* 2 - All",
+            "schema": {
+              "$ref": "#/components/schemas/Reach"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentSummaryListResponseModel"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentSummaryListResponseModel"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentSummaryListResponseModel"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Client Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AgentCallActivity": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "sessionId": {
+            "type": "string",
+            "nullable": true
+          },
+          "callStartDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "callEndDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "callStartEpochTime": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "callEndEpochTime": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "contactName": {
+            "type": "string",
+            "nullable": true
+          },
+          "companyName": {
+            "type": "string",
+            "nullable": true
+          },
+          "contactNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "isInternalCall": {
+            "type": "boolean",
+            "description": "Agent to agent call"
+          },
+          "accountName": {
+            "type": "string",
+            "nullable": true
+          },
+          "accountNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "departmentName": {
+            "type": "string",
+            "nullable": true
+          },
+          "departmentId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "callDirectionId": {
+            "type": "integer",
+            "description": "Identifier on whether the call was received (inbound) or made (outbound)",
+            "format": "int64"
+          },
+          "callDirectionDescription": {
+            "type": "string",
+            "description": "Description on whether the call was received (inbound) or made (outbound)",
+            "nullable": true
+          },
+          "callAgentOutcomeId": {
+            "type": "integer",
+            "description": "Identifier (1 = Connected, 2 = Unconnected) on whether the phone has been answered (or gone to voicemail for outbound calls)",
+            "format": "int64"
+          },
+          "callAgentOutcomeDescription": {
+            "type": "string",
+            "description": "Connected if the phone has been answered (or gone to voicemail for outbound calls)",
+            "nullable": true
+          },
+          "totalDuration": {
+            "type": "integer",
+            "description": "Duration that includes RingDuration",
+            "format": "int64"
+          },
+          "ringDuration": {
+            "type": "integer",
+            "description": "Duration that the device rang",
+            "format": "int64"
+          },
+          "talkTime": {
+            "type": "integer",
+            "description": "Duration that an Agent spend talking on the line (i.e. hold time excluded)",
+            "format": "int64"
+          },
+          "holdTime": {
+            "type": "integer",
+            "description": "Duration that the contact spend on hold",
+            "format": "int64"
+          },
+          "agentMadeTransferDuration": {
+            "type": "integer",
+            "description": "Duration that, the Agent that made an assisted transfer, spend before completing the transfer",
+            "format": "int64"
+          },
+          "agentReceivedTransferDuration": {
+            "type": "integer",
+            "description": "Duration that, the Agent that received an assisted transfer, spend before the transfer got completed",
+            "format": "int64"
+          },
+          "customerId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "campaignId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "The id the campaign belongs to. When its set to zero the call is not part of a campaign."
+          },
+          "campaignName": {
+            "type": "string",
+            "nullable": true,
+            "description": "The name of the campaign."
+          },
+          "campaignNumber": {
+            "type": "string",
+            "nullable": true,
+            "description": "The number assigned to the campaign."
+          },
+          "callRecordingAvailable": {
+            "type": "boolean"
+          },
+          "inCallDuration": {
+            "type": "integer",
+            "format": "int64",
+            "readOnly": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "AgentCallActivityResponse": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "take": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "totalCount": {
+            "type": "integer",
+            "description": "Total max value is set to 10.000",
+            "format": "int64"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AgentCallActivity"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ListSortDirection": {
+        "enum": [0, 1],
+        "type": "integer",
+        "format": "int32"
+      },
+      "AgentStatistics": {
+        "type": "object",
+        "properties": {
+          "customerId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "departmentId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "accountId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "externalCallTotalDuration": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "externalCallsCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "externalInboundCallCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "externalInboundCallTotalDuration": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "externalInboundUnconnectedCallsCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "externalOutboundCallCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "externalOutboundCallTotalDuration": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "inboundUnconnectedCampaignCallCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "inboundUnconnectedCampaignCallTotalDuration": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "internalCallCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "internalCallTotalDuration": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "internalInboundCallCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "internalInboundCallTotalDuration": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "internalInboundUnconnectedCallsCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "internalOutboundCallCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "internalOutboundCallTotalDuration": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "additionalProperties": false
+      },
+      "AgentStatisticsListResponseModel": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AgentStatistics"
+            },
+            "nullable": true
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "count": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "AgentSummary": {
+        "type": "object",
+        "properties": {
+          "customerId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "departmentId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "accountId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "inboundConnectedCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "inboundUnconnectedCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "outboundConnectedCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "outboundCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "connectedCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "inboundInCallDuration": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "outboundInCallDuration": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "inboundTotalDuration": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "outboundTotalDuration": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "inboundConnectedTotalDuration": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "outboundConnectedTotalDuration": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "additionalProperties": false
+      },
+      "AgentSummaryListResponseModel": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AgentSummary"
+            },
+            "nullable": true
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "count": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ProblemDetails": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "detail": {
+            "type": "string",
+            "nullable": true
+          },
+          "instance": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": {}
+      },
+      "Reach": {
+        "enum": [0, 1, 2],
+        "type": "integer",
+        "format": "int32"
+      }
+    },
+    "securitySchemes": {
+      "Bearer": {
+        "type": "apiKey",
+        "description": "JWT Authorization header using the Bearer scheme. \r\n\r\n Enter 'Bearer' [space] and then your token in the text input below.",
+        "name": "Authorization",
+        "in": "header"
+      }
+    }
+  },
+  "security": [
+    {
+      "Bearer": []
+    }
+  ]
+}
