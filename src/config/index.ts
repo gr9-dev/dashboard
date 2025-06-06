@@ -23,7 +23,7 @@ interface Config {
 
 const config: Config = {
   api: {
-    baseUrl: import.meta.env.VITE_API_BASE_URL || 'https://ng-api.uk.cloudcall.com/v3',
+    baseUrl: import.meta.env.VITE_API_BASE_URL || (import.meta.env.PROD ? '/api' : 'https://ng-api.uk.cloudcall.com/v3'),
     region: import.meta.env.VITE_API_REGION || 'UK',
     endpoints: {
       auth: '/auth/login',
