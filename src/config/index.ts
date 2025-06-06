@@ -21,6 +21,14 @@ interface Config {
   };
 }
 
+// Debug environment detection
+console.log('Environment check:', {
+  isProd: import.meta.env.PROD,
+  isDev: import.meta.env.DEV,
+  mode: import.meta.env.MODE,
+  viteApiBaseUrl: import.meta.env.VITE_API_BASE_URL
+});
+
 const config: Config = {
   api: {
     baseUrl: import.meta.env.VITE_API_BASE_URL || (import.meta.env.PROD ? '/api' : 'https://ng-api.uk.cloudcall.com/v3'),
